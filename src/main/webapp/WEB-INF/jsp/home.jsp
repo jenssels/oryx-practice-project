@@ -39,6 +39,9 @@
 				Total Price
 			</th>
 			<th align="left">
+				Status
+			</th>
+			<th align="left">
 				Actions
 			</th>
 		</tr>
@@ -50,9 +53,20 @@
 				<td>${order.product.price} lv</td>
 				<td>${order.amount}</td>
 				<td>${order.getTotalPrice()} lv</td>
+				<td>${order.status}</td>
 				<td>
-					<a href="orderForm?id=${order.id}"><button type="button" class="btn btn-secondary">Edit</button></a>
-					<a href="deleteOrder?id=${order.id}"><button type="button" class="btn btn-danger">Delete</button></a>
+					<c:if test="${order.status == 'Pending'}">
+						<a href="payOrder?id=${order.id}"><button type="button" class="btn btn-info">Pay</button></a>
+					</c:if>
+					<c:if test="${order.status == 'Transit'}">
+						<a href="receivedOrder?id=${order.id}"><button type="button" class="btn btn-info">Received</button></a>
+					</c:if>
+					<c:if test="${order.status == 'Pending'}">
+						<a href="orderForm?id=${order.id}"><button type="button" class="btn btn-secondary">Edit</button></a>
+					</c:if>
+					<c:if test="${order.status == 'Pending'}">
+						<a href="deleteOrder?id=${order.id}"><button type="button" class="btn btn-danger">Delete</button></a>
+					</c:if>
 				</td>
 			</tr>
 		</c:forEach>

@@ -21,6 +21,7 @@ import base.model.Product;
 import base.model.User;
 import base.model.User.UserRole;
 import base.model.UserOrder;
+import base.model.UserOrder.OrderStatus;
 import base.repositories.OrderRepository;
 import base.repositories.ProductRepository;
 import base.repositories.UserRepository;
@@ -39,6 +40,7 @@ public class AdminController {
 	AuthController auth = new AuthController();
 	
 	Product product = new Product();
+	UserOrder order = new UserOrder();
 	
 	@GetMapping("/adminHome")
 	public String adminHome (HttpSession session, Model model) {
@@ -91,9 +93,32 @@ public class AdminController {
 		}
 	}
 	
+	@GetMapping("/sendAdminOrder")
+	public RedirectView sendOrder (@RequestParam("id") Long orderId,HttpSession session, Model model) {
+		User user = auth.getUserFromSession(session, userRepo);
+		order = new UserOrder();
+		if (user != null) {
+			if (user.getRole() == UserRole.Admin && orderId != null) {
+				orderRepo.findById(orderId).ifPresent(foundOrder ->{
+					order = foundOrder;
+				});
+				if (order.getStatus() == OrderStatus.Paid) {
+					order.setStatus(OrderStatus.Transit);
+					orderRepo.save(order);
+				}
+				return new RedirectView("adminHome");
+			} else {
+				return new RedirectView("home");
+			}
+		} else {
+			return new RedirectView("loginForm");
+		}
+	}
+	
 	@GetMapping("/adminProductForm")
 	public String productForm(@RequestParam("id") long productId, @RequestParam(name="message", required=false, defaultValue="") String message, Model model, HttpSession session) {
 		User user = auth.getUserFromSession(session, userRepo);
+		product = new Product();
 		if (user != null) {
 			if (user.getRole() == UserRole.Admin) {
 				productRepo.findById(productId).ifPresent(foundProduct -> {

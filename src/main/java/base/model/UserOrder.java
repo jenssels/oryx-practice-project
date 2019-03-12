@@ -11,6 +11,11 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 public class UserOrder {
+	
+	public enum OrderStatus {
+		Pending, Paid, Transit, Received
+	}
+	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private long id;
@@ -23,6 +28,8 @@ public class UserOrder {
 	private Product product;
 	@Min(1)
 	private int amount;
+	
+	private OrderStatus status = OrderStatus.Pending;
 	
 	public UserOrder () {
 		
@@ -72,10 +79,20 @@ public class UserOrder {
 	public void setAmount(int amount) {
 		this.amount = amount;
 	}
+	
+	
+
+	public OrderStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(OrderStatus status) {
+		this.status = status;
+	}
 
 	@Override
 	public String toString() {
-		return "Order [id =" + id + ", user=" + user.getName() + ", product=" + product.getName() + ", amount=" + amount + "]";
+		return "Order [id =" + id + ", user=" + user.getName() + ", product=" + product.getName() + ", amount=" + amount + ", status=" + status + "]";
 	}
 	
 	public Double getTotalPrice() {

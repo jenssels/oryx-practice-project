@@ -1,5 +1,9 @@
 @charset "ISO-8859-1";
 
+body {
+	background-color: #d3d3d3;
+}
+
 h1{
 	color:#0000FF;
 }
@@ -10,4 +14,14 @@ h2{
 
 .padding-btm-25 {
 	padding-bottom: 25px;
+}
+
+.container{
+	background-color: white;
+	padding-bottom: 25px;
+	min-height: 100vh;
+}
+
+.table{
+
 }

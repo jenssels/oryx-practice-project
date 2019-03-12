@@ -17,6 +17,7 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import base.model.User;
 import base.model.UserOrder;
+import base.model.UserOrder.OrderStatus;
 import base.repositories.OrderRepository;
 import base.repositories.ProductRepository;
 import base.repositories.UserRepository;
@@ -40,6 +41,7 @@ public class OrderController {
 	public String orderForm(@RequestParam("id") long orderId, @RequestParam(name="message", required=false, defaultValue="") String message, Model model, HttpSession session) {
 		User user = auth.getUserFromSession(session, userRepo);
 		if (user != null) {
+			order = new UserOrder();
 			if (orderId != 0) {
 				orderRepo.findById(orderId).ifPresent(foundOrder ->{
 					order = foundOrder;
@@ -66,7 +68,9 @@ public class OrderController {
 				return new RedirectView("orderForm");
 			} else {
 				order.setUser(user);
-				orderRepo.save(order);
+				if (order.getStatus() == OrderStatus.Pending) {
+					orderRepo.save(order);
+				}
 				return new RedirectView("home");
 			}
 		} else {
@@ -81,8 +85,44 @@ public class OrderController {
 			orderRepo.findById(orderId).ifPresent(foundOrder ->{
 					order = foundOrder;
 			});
-			if (user.getId() == order.getUser().getId()) {
+			if (user.getId() == order.getUser().getId() && order.getStatus() == OrderStatus.Pending ) {
 				orderRepo.delete(order);
+			}
+			return new RedirectView("home");
+		} else {
+			return new RedirectView("loginForm");
+		}
+	}
+	
+	@GetMapping("/payOrder")
+	public RedirectView payOrder (HttpSession session, @RequestParam("id") long orderId) {
+		User user = auth.getUserFromSession(session, userRepo);
+		order = new UserOrder();
+		if (user != null && orderId != 0) {
+			orderRepo.findById(orderId).ifPresent(foundOrder ->{
+					order = foundOrder;
+			});
+			if (user.getId() == order.getUser().getId() && order.getStatus() == OrderStatus.Pending) {
+				order.setStatus(OrderStatus.Paid);
+				orderRepo.save(order);
+			}
+			return new RedirectView("home");
+		} else {
+			return new RedirectView("loginForm");
+		}
+	}
+	
+	@GetMapping("/receivedOrder")
+	public RedirectView receivedOrder (HttpSession session, @RequestParam("id") long orderId) {
+		User user = auth.getUserFromSession(session, userRepo);
+		order = new UserOrder();
+		if (user != null && orderId != 0) {
+			orderRepo.findById(orderId).ifPresent(foundOrder ->{
+					order = foundOrder;
+			});
+			if (user.getId() == order.getUser().getId() && order.getStatus() == OrderStatus.Transit) {
+				order.setStatus(OrderStatus.Received);
+				orderRepo.save(order);
 			}
 			return new RedirectView("home");
 		} else {

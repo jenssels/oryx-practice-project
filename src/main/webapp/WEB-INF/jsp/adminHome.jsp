@@ -68,6 +68,9 @@
 				User
 			</th>
 			<th align="left">
+				Status
+			</th>
+			<th align="left">
 				Actions
 			</th>
 		</tr>
@@ -80,7 +83,11 @@
 				<td>${order.amount}</td>
 				<td>${order.getTotalPrice()} lv</td>
 				<td>${order.user.name}</td>
+				<td>${order.status}</td>
 				<td>
+					<c:if test="${order.status == 'Paid'}">
+						<a href="sendAdminOrder?id=${order.id}"><button type="button" class="btn btn-info">Send Order</button></a>
+					</c:if>
 					<a href="deleteAdminOrder?id=${order.id}"><button type="button" class="btn btn-danger">Delete Order</button></a>
 				</td>
 			</tr>
